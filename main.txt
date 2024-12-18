@@ -1,0 +1,197 @@
+#include <iostream>
+#include <vector>
+#include <memory>
+#include <string>
+#include <algorithm>
+#include <unordered_map>
+#include <functional>
+#include <mutex>
+#include <thread>
+#include <atomic>
+#include <chrono>
+
+// Observer Pattern: Observer Interface
+class Observer {
+public:
+    virtual void update(const std::string& state) = 0;
+    virtual ~Observer() = default;
+};
+
+// Subject Interface for Observer Pattern
+class Subject {
+    std::vector<std::shared_ptr<Observer>> observers;
+
+public:
+    void attach(const std::shared_ptr<Observer>& observer) {
+        observers.push_back(observer);
+    }
+
+    void detach(const std::shared_ptr<Observer>& observer) {
+        observers.erase(std::remove(observers.begin(), observers.end(), observer), observers.end());
+    }
+
+    void notify(const std::string& state) {
+        for (const auto& observer : observers) {
+            observer->update(state);
+        }
+    }
+};
+
+// Iterator Pattern: Song and Playlist
+class Song {
+    std::string title;
+public:
+    explicit Song(const std::string& title) : title(title) {}
+    std::string getTitle() const { return title; }
+};
+
+class Playlist {
+    std::vector<Song> songs;
+public:
+    void addSong(const Song& song) {
+        songs.push_back(song);
+    }
+
+    class Iterator {
+        std::vector<Song>::iterator current;
+        std::vector<Song>::iterator end;
+    public:
+        Iterator(std::vector<Song>::iterator start, std::vector<Song>::iterator end) : current(start), end(end) {}
+        bool hasNext() const { return current != end; }
+        Song next() { return *current++; }
+    };
+
+    Iterator getIterator() { return Iterator(songs.begin(), songs.end()); }
+};
+
+// Bridge Pattern: Abstraction and Implementation
+class AudioPlayerImplementation {
+public:
+    virtual void playAudio(const std::string& audio) = 0;
+    virtual ~AudioPlayerImplementation() = default;
+};
+
+class SimpleAudioPlayer : public AudioPlayerImplementation {
+public:
+    void playAudio(const std::string& audio) override {
+        std::cout << "Playing audio: " << audio << std::endl;
+    }
+};
+
+class AudioPlayerAbstraction {
+protected:
+    std::shared_ptr<AudioPlayerImplementation> implementation;
+
+public:
+    explicit AudioPlayerAbstraction(std::shared_ptr<AudioPlayerImplementation> impl) : implementation(std::move(impl)) {}
+    virtual void play(const std::string& audio) = 0;
+    virtual ~AudioPlayerAbstraction() = default;
+};
+
+class SmartAudioPlayer : public AudioPlayerAbstraction {
+public:
+    explicit SmartAudioPlayer(std::shared_ptr<AudioPlayerImplementation> impl) : AudioPlayerAbstraction(std::move(impl)) {}
+
+    void play(const std::string& audio) override {
+        implementation->playAudio(audio);
+    }
+};
+
+// SmartMusicPlayer integrates Observer, Bridge, and Iterator
+class SmartMusicPlayer : public Subject {
+    Playlist playlist;
+    std::shared_ptr<AudioPlayerAbstraction> audioPlayer;
+    std::string currentState;
+    std::atomic<bool> playing;
+    std::thread playThread;
+    std::mutex mtx;
+
+public:
+    explicit SmartMusicPlayer(std::shared_ptr<AudioPlayerAbstraction> player) : audioPlayer(std::move(player)), playing(false) {}
+
+    ~SmartMusicPlayer() {
+        stop();
+        if (playThread.joinable()) {
+            playThread.join();
+        }
+    }
+
+    void addSong(const Song& song) {
+        playlist.addSong(song);
+    }
+
+    void play() {
+    stop();  // Đảm bảo dừng luồng trước đó
+    if (playing) return;
+   // stop();
+    playing = true;
+
+    playThread = std::thread([this]() {
+        auto iterator = playlist.getIterator();
+        while (iterator.hasNext() && playing) {
+            auto song = iterator.next();
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                currentState = "Playing: " + song.getTitle();
+                notify(currentState);
+            }
+            audioPlayer->play(song.getTitle());
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+    });
+
+    }
+
+    void pause() {
+        std::lock_guard<std::mutex> lock(mtx);
+        playing = false;
+        currentState = "Paused";
+        notify(currentState);
+        std::cout << "Player paused." << std::endl;
+    }
+
+    void stop() {
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            playing = false;
+            currentState = "Stopped";
+            notify(currentState);
+        }
+        if (playThread.joinable()) {
+            playThread.join();
+        }
+    }
+};
+
+// Example Observer
+class ConsoleLogger : public Observer {
+public:
+    void update(const std::string& state) override {
+        std::cout << "[Logger] Player state changed: " << state << std::endl;
+    }
+};
+
+int main() {
+    auto logger = std::make_shared<ConsoleLogger>();
+    auto audioImpl = std::make_shared<SimpleAudioPlayer>();
+    SmartMusicPlayer player(std::make_shared<SmartAudioPlayer>(audioImpl));
+
+    player.attach(logger);
+
+    player.addSong(Song("Song 1"));
+    player.addSong(Song("Song 2"));
+    player.addSong(Song("Song 3"));
+
+    player.play();
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+
+    player.play();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    player.pause();
+
+    player.play();
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    player.stop();
+
+    return 0;
+}
