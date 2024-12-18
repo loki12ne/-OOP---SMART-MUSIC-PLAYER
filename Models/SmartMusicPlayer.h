@@ -48,11 +48,11 @@ public:
             auto song = iterator.next();
             {
                 std::lock_guard<std::mutex> lock(mtx);
-                currentState = "Playing: " + song.getTitle();
+                currentState = "Playing: " + song.getDetails();
                 notify(currentState);
             }
-            audioPlayer->play(song.getTitle());
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            audioPlayer->play(song.getName());
+            std::this_thread::sleep_for(std::chrono::seconds(song.getTime()));
         }
     });
 

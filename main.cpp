@@ -29,9 +29,9 @@ int main() {
 
     player.attach(logger);
 
-    player.addSong(Song("Song 1"));
-    player.addSong(Song("Song 2"));
-    player.addSong(Song("Song 3"));
+    player.addSong(Song("Song 1", "Pop", "Singer 1", "Album 1", 2)); // 2:00
+    player.addSong(Song("Song 2", "Rock", "Singer 2", "Album 2", 2)); // 2:30
+    player.addSong(Song("Song 3", "Jazz", "Singer 3", "Album 3", 2));  // 1:3
 
     player.play();
     std::this_thread::sleep_for(std::chrono::seconds(10));
