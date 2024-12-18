@@ -7,13 +7,8 @@ class PlaylistService {
     Playlist playlist;
 
 public:
-    void addSong(const Song& song) {
-        playlist.addSong(song);
-    }
-
-    Playlist::Iterator getIterator() {
-        return playlist.getIterator();
-    }
+    void addSong(const Song& song);
+    Playlist::Iterator getIterator();
 };
 
 #endif // _PLAYLIST_SERVICE_H_

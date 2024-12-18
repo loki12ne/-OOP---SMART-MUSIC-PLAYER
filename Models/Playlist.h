@@ -2,27 +2,25 @@
 #define _PLAYLIST_H_
 
 #include <vector>
-#include <memory>
-
 #include "Song.h"
 
 class Playlist {
     std::vector<Song> songs;
+
 public:
-    void addSong(const Song& song) {
-        songs.push_back(song);
-    }
+    void addSong(const Song& song);
 
     class Iterator {
         std::vector<Song>::iterator current;
         std::vector<Song>::iterator end;
+
     public:
-        Iterator(std::vector<Song>::iterator start, std::vector<Song>::iterator end) : current(start), end(end) {}
-        bool hasNext() const { return current != end; }
-        Song next() { return *current++; }
+        Iterator(std::vector<Song>::iterator start, std::vector<Song>::iterator end);
+        bool hasNext() const;
+        Song next();
     };
 
-    Iterator getIterator() { return Iterator(songs.begin(), songs.end()); }
+    Iterator getIterator();
 };
 
-#endif 
+#endif

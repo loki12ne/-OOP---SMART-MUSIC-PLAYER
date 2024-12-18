@@ -17,25 +17,20 @@ protected:
     std::shared_ptr<AudioPlayerImplementation> implementation;
 
 public:
-    explicit AudioPlayerAbstraction(std::shared_ptr<AudioPlayerImplementation> impl) : implementation(std::move(impl)) {}
+    explicit AudioPlayerAbstraction(std::shared_ptr<AudioPlayerImplementation> impl);
     virtual void play(const std::string& audio) = 0;
     virtual ~AudioPlayerAbstraction() = default;
 };
 
 class SimpleAudioPlayer : public AudioPlayerImplementation {
 public:
-    void playAudio(const std::string& audio) override {
-        std::cout << "Playing audio: " << audio << std::endl;
-    }
+    void playAudio(const std::string& audio) override;
 };
 
 class SmartAudioPlayer : public AudioPlayerAbstraction {
 public:
-    explicit SmartAudioPlayer(std::shared_ptr<AudioPlayerImplementation> impl) : AudioPlayerAbstraction(std::move(impl)) {}
-
-    void play(const std::string& audio) override {
-        implementation->playAudio(audio);
-    }
+    explicit SmartAudioPlayer(std::shared_ptr<AudioPlayerImplementation> impl);
+    void play(const std::string& audio) override;
 };
 
-#endif 
+#endif

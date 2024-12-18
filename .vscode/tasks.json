@@ -8,7 +8,8 @@
                 "-std=c++2b",
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}",
+                "*.cpp",
+                "Models/*.cpp",
                 "-o",
                 "${fileDirname}/debug/program",
                 "-pthread"

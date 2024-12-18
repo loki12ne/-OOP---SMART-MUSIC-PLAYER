@@ -34,7 +34,7 @@ int main() {
     player.addSong(Song("Song 3", "Jazz", "Singer 3", "Album 3", 2));  // 1:3
 
     player.play();
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::this_thread::sleep_for(std::chrono::seconds(7));
 
     player.play();
     std::this_thread::sleep_for(std::chrono::seconds(3));
