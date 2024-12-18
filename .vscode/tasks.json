@@ -9,7 +9,11 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "*.cpp",
-                "Models/*.cpp",
+                "./Models/*.cpp",
+                "./Services/*.cpp",
+                "./Services/Bussiness/*.cpp",
+                "./Services/DataAccess/*.cpp",
+            //    "./Services/UI/Factory.cpp",
                 "-o",
                 "${fileDirname}/debug/program",
                 "-pthread"

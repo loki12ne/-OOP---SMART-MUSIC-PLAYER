@@ -13,6 +13,7 @@
 #include "Playlist.h"
 
 class SmartMusicPlayer : public Subject {
+private:
     Playlist playlist;
     std::shared_ptr<AudioPlayerAbstraction> audioPlayer;
     std::string currentState;
@@ -28,6 +29,7 @@ public:
     void play();
     void pause();
     void stop();
+    void loadSong(std::vector<Song> songs);
 };
 
 #endif

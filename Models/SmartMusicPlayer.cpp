@@ -61,3 +61,11 @@ void SmartMusicPlayer::stop() {
         playThread.join();
     }
 }
+
+
+void SmartMusicPlayer::loadSong(std::vector<Song> songs) {
+        for (const auto& song : songs) {
+        playlist.addSong(song); // Thêm từng bài hát vào playlist
+    }
+    
+}

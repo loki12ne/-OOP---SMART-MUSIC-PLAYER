@@ -5,6 +5,7 @@
 #include "Song.h"
 
 class Playlist {
+private:
     std::vector<Song> songs;
 
 public:

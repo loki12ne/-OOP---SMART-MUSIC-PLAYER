@@ -1,37 +1,33 @@
-// #include <iostream>
-// #include <vector>
-// #include <memory>
-// #include <string>
-// #include <algorithm>
-// #include <unordered_map>
-// #include <functional>
-// #include <mutex>
-// #include <thread>
-// #include <atomic>
-// #include <chrono>
-
-
 #include <memory>
 #include <thread>
 
-#include "Models/ConsoleLogger.h"
 // #include "Services/Bussiness/AudioPlayer.h"
 #include "Services/Bussiness/SmartMusicPlayerService.h"
+#include "Services/Factory.h"
+#include "Services/DataAccess/IDao.h"
 
+void config() {
+    Factory::instance();
 
-// Example Observer
-
+}
 
 int main() {
-    auto logger = std::make_shared<ConsoleLogger>();
+    config();
+
+    auto factory = Factory::instance();
+    auto logger = factory->getService<Observer>();
+    
     auto audioImpl = std::make_shared<SimpleAudioPlayer>();
     SmartMusicPlayer player(std::make_shared<SmartAudioPlayer>(audioImpl));
 
     player.attach(logger);
 
-    player.addSong(Song("Song 1", "Pop", "Singer 1", "Album 1", 2)); // 2:00
-    player.addSong(Song("Song 2", "Rock", "Singer 2", "Album 2", 2)); // 2:30
-    player.addSong(Song("Song 3", "Jazz", "Singer 3", "Album 3", 2));  // 1:3
+    shared_ptr<IDao> dao = dynamic_pointer_cast<IDao>(
+        factory->getService<IDao>()
+    );
+
+    auto song = dao->getAll();
+    player.loadSong(song);
 
     player.play();
     std::this_thread::sleep_for(std::chrono::seconds(7));

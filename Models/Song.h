@@ -4,6 +4,7 @@
 #include <string>
 
 class Song {
+private:
     std::string name;
     std::string type;
     std::string singer;

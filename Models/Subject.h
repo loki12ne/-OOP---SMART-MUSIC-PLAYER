@@ -7,6 +7,7 @@
 #include "Observer.h"
 
 class Subject {
+private:
     std::vector<std::shared_ptr<Observer>> observers;
 
 public:

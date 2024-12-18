@@ -6,6 +6,7 @@
 #include "../../Models/SmartMusicPlayer.h"
 
 class SmartMusicPlayerService {
+private:
     std::shared_ptr<SmartMusicPlayer> player;
 
 public:
